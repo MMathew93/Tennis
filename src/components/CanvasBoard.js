@@ -5,9 +5,9 @@ import Window from '../objects/Window'
 import Puck from '../objects/Puck'
 import Paddle from '../objects/Paddle'
 
-const puck = new Puck();
-const leftPaddle = new Paddle(true);
-const rightPaddle = new Paddle(false);
+let puck
+let leftPaddle
+let rightPaddle
 let cpuMode = false;
 
 export default () => {
@@ -15,31 +15,19 @@ export default () => {
         //use parent to render the canvas in this ref
         //(without that p5 will render the canvas outside of the component)
         p5.createCanvas(Window.windowWidth, Window.windowHeight).parent(canvasParentRef);
+        puck = new Puck(p5);
+        leftPaddle = new Paddle(p5, true);
+        rightPaddle = new Paddle(p5, false);
     };
 
     const draw = (p5) => {
-        //constrain paddles to window height
-        let leftPaddleConstrain = p5.constrain(leftPaddle.y, 0, Window.windowHeight - leftPaddle.height)
-        let rightPaddleConstrain = p5.constrain(rightPaddle.y, 0, Window.windowHeight - rightPaddle.height)
-        //let puckConstrain = p5.constrain()
-
-        //Draw the background
+        //Draw pieces
         p5.background(0);
-
-        //Draw the puck
-        p5.fill(255)
-        p5.ellipse(puck.xBall, puck.yBall, puck.diameter, puck.diameter)
-
-        //Draw the left paddle
-        p5.fill(255)
-        p5.noStroke();
-        p5.rect(leftPaddle.x, leftPaddleConstrain, leftPaddle.width, leftPaddle.height)
-
-        //Draw the right paddle
-        p5.fill(255)
-        p5.noStroke();
-        p5.rect(rightPaddle.x, rightPaddleConstrain, rightPaddle.width, rightPaddle.height)
-
+        puck.show()
+        leftPaddle.update()
+        rightPaddle.update()
+        leftPaddle.show()
+        rightPaddle.show()
     };
 
     function keyPressed(e){
@@ -62,11 +50,13 @@ export default () => {
         }
     }
 
-    /*function keyReleased(e){
-        if((e.keyCode === 87 || e.keyCode === 38)||(e.keyCode === 83 || e.keyCode === 40)){
-            leftPaddle.stp()
+    function keyReleased(e){
+        if(e.keyCode === 87 || e.keyCode === 83){
+            leftPaddle.stopping()
+        }else if(e.keyCode === 38 || e.keyCode === 40){
+            rightPaddle.stopping()
         }
-    }*/
+    }
 
-    return <Sketch setup={setup} draw={draw} keyPressed={keyPressed} />;
+    return <Sketch setup={setup} draw={draw} keyPressed={keyPressed} keyReleased={keyReleased} />;
 }
